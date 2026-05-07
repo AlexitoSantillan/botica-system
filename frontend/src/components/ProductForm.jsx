@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 
-function ProductForm() {
+function ProductForm({obtenerProductos}) {
   const [producto, setProducto] = useState({
     nombre: "",
     categoria: "",
@@ -26,6 +26,8 @@ function ProductForm() {
     );
 
     alert("Producto agregado");
+
+    obtenerProductos();
 
     setProducto({
       nombre: "",

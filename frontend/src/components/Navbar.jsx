@@ -1,4 +1,8 @@
-function Navbar({ setAutenticado }) {
+function Navbar({
+  setAutenticado,
+  darkMode,
+  setDarkMode
+}) {
 
   const cerrarSesion = () => {
     setAutenticado(false);
@@ -12,6 +16,14 @@ function Navbar({ setAutenticado }) {
       </h2>
 
       <div className="navbar-right">
+
+        <button
+          onClick={() =>
+            setDarkMode(!darkMode)
+          }
+        >
+          {darkMode ? "☀️ Claro" : "🌙 Oscuro"}
+        </button>
 
         <span>
           Administrador

@@ -10,6 +10,7 @@ import Login from "./components/Login";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import StatsChart from "./components/StatsChart";
+import ExportPDF from "./components/ExportPDF";
 
 import "./App.css";
 
@@ -19,6 +20,9 @@ function App() {
     useState([]);
 
   const [autenticado, setAutenticado] =
+    useState(false);
+
+  const [darkMode, setDarkMode] =
     useState(false);
 
   const obtenerProductos = async () => {
@@ -43,10 +47,18 @@ function App() {
   }
 
   return (
-    <div className="container">
+    <div
+      className={
+        darkMode
+          ? "container dark"
+          : "container"
+      }
+    >
 
       <Navbar
         setAutenticado={setAutenticado}
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
       />
 
       <h1 className="titulo">
@@ -56,11 +68,16 @@ function App() {
       <Dashboard productos={productos} />
 
       <div className="card">
+        <ExportPDF productos={productos} />
+      </div>
+
+      <div className="card">
         <StatsChart productos={productos} />
       </div>
 
       <div className="card">
-        <ProductForm />
+        <ProductForm 
+        obtenerProductos={obtenerProductos}/>
       </div>
 
       <div className="card">
@@ -73,7 +90,8 @@ function App() {
 
       <div className="card">
         <ProductList
-          setProductosGlobal={setProductos}
+          productos={productos}
+          obtenerProductos={obtenerProductos}
         />
       </div>
 

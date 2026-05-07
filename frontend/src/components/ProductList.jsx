@@ -1,40 +1,34 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 
-function ProductList({ setProductosGlobal }) {
+function ProductList({
+  productos,
+  obtenerProductos
+}) {
 
-  const [productos, setProductos] = useState([]);
-  const [editando, setEditando] = useState(null);
-  const [busqueda, setBusqueda] = useState("");
+  const [editando, setEditando] =
+    useState(null);
 
-  const [formulario, setFormulario] = useState({
-    nombre: "",
-    categoria: "",
-    precio: "",
-    stock: "",
-    fechaVencimiento: ""
-  });
+  const [busqueda, setBusqueda] =
+    useState("");
 
-  const obtenerProductos = async () => {
+  const [formulario, setFormulario] =
+    useState({
+      nombre: "",
+      categoria: "",
+      precio: "",
+      stock: "",
+      fechaVencimiento: ""
+    });
 
-    const res = await axios.get(
-      "http://localhost:5000/api/productos"
-    );
-
-    setProductos(res.data);
-    setProductosGlobal(res.data);
-  };
-
-  useEffect(() => {
-    obtenerProductos();
-  }, []);
-
-  const productosFiltrados = productos.filter(
-    (producto) =>
+  const productosFiltrados =
+    productos.filter((producto) =>
       producto.nombre
-        .toLowerCase()
-        .includes(busqueda.toLowerCase())
-  );
+        ?.toLowerCase()
+        .includes(
+          busqueda.toLowerCase()
+        )
+    );
 
   const eliminarProducto = async (id) => {
 
@@ -50,12 +44,18 @@ function ProductList({ setProductosGlobal }) {
     setEditando(producto._id);
 
     setFormulario({
-      nombre: producto.nombre,
-      categoria: producto.categoria,
-      precio: producto.precio,
-      stock: producto.stock,
+      nombre: producto.nombre || "",
+      categoria: producto.categoria || "",
+      precio: producto.precio || "",
+      stock: producto.stock || "",
       fechaVencimiento:
-        producto.fechaVencimiento.split("T")[0]
+        producto.fechaVencimiento
+          ? new Date(
+              producto.fechaVencimiento
+            )
+              .toISOString()
+              .split("T")[0]
+          : ""
     });
   };
 
@@ -63,7 +63,8 @@ function ProductList({ setProductosGlobal }) {
 
     setFormulario({
       ...formulario,
-      [e.target.name]: e.target.value
+      [e.target.name]:
+        e.target.value
     });
   };
 
@@ -89,7 +90,9 @@ function ProductList({ setProductosGlobal }) {
         placeholder="Buscar producto..."
         value={busqueda}
         onChange={(e) =>
-          setBusqueda(e.target.value)
+          setBusqueda(
+            e.target.value
+          )
         }
       />
 
@@ -108,58 +111,93 @@ function ProductList({ setProductosGlobal }) {
 
         <tbody>
 
-          {productosFiltrados.map((producto) => (
+          {productosFiltrados.map(
+            (producto) => (
+
             <tr key={producto._id}>
 
               <td>
-                {editando === producto._id ? (
+                {editando ===
+                producto._id ? (
+
                   <input
                     name="nombre"
-                    value={formulario.nombre}
-                    onChange={handleChange}
+                    value={
+                      formulario.nombre || ""
+                    }
+                    onChange={
+                      handleChange
+                    }
                   />
+
                 ) : (
                   producto.nombre
                 )}
               </td>
 
               <td>
-                {editando === producto._id ? (
+                {editando ===
+                producto._id ? (
+
                   <input
                     name="categoria"
-                    value={formulario.categoria}
-                    onChange={handleChange}
+                    value={
+                      formulario.categoria || ""
+                    }
+                    onChange={
+                      handleChange
+                    }
                   />
+
                 ) : (
                   producto.categoria
                 )}
               </td>
 
               <td>
-                {editando === producto._id ? (
+                {editando ===
+                producto._id ? (
+
                   <input
                     name="precio"
-                    value={formulario.precio}
-                    onChange={handleChange}
+                    value={
+                      formulario.precio || ""
+                    }
+                    onChange={
+                      handleChange
+                    }
                   />
+
                 ) : (
                   `S/. ${producto.precio}`
                 )}
               </td>
 
               <td>
-                {editando === producto._id ? (
+                {editando ===
+                producto._id ? (
+
                   <input
                     name="stock"
-                    value={formulario.stock}
-                    onChange={handleChange}
+                    value={
+                      formulario.stock || ""
+                    }
+                    onChange={
+                      handleChange
+                    }
                   />
+
                 ) : (
                   <>
                     {producto.stock}
 
-                    {producto.stock < 5 && (
-                      <p style={{ color: "red" }}>
+                    {producto.stock <
+                      5 && (
+                      <p
+                        style={{
+                          color: "red"
+                        }}
+                      >
                         Stock Bajo
                       </p>
                     )}
@@ -168,49 +206,80 @@ function ProductList({ setProductosGlobal }) {
               </td>
 
               <td>
-                {editando === producto._id ? (
+                {editando ===
+                producto._id ? (
+
                   <input
                     type="date"
                     name="fechaVencimiento"
-                    value={formulario.fechaVencimiento}
-                    onChange={handleChange}
+                    value={
+                      formulario.fechaVencimiento || ""
+                    }
+                    onChange={
+                      handleChange
+                    }
                   />
+
                 ) : (
                   <>
-                    {new Date(
-                      producto.fechaVencimiento
-                    ).toLocaleDateString()}
 
-                    {new Date(
-                      producto.fechaVencimiento
-                    ) <
+                    {producto.fechaVencimiento
+                      ? new Date(
+                          producto.fechaVencimiento
+                        ).toLocaleDateString()
+                      : "Sin fecha"}
+
+                    {producto.fechaVencimiento &&
                       new Date(
-                        Date.now() +
-                        7 * 24 * 60 * 60 * 1000
-                      ) && (
-                      <p style={{ color: "orange" }}>
-                        Próximo a vencer
-                      </p>
+                        producto.fechaVencimiento
+                      ) <
+                        new Date(
+                          Date.now() +
+                            7 *
+                              24 *
+                              60 *
+                              60 *
+                              1000
+                        ) && (
+                        <p
+                          style={{
+                            color:
+                              "orange"
+                          }}
+                        >
+                          Próximo a vencer
+                        </p>
                     )}
+
                   </>
                 )}
               </td>
 
               <td>
 
-                {editando === producto._id ? (
+                {editando ===
+                producto._id ? (
 
                   <button
                     style={{
-                      background: "green",
-                      color: "white",
-                      marginRight: "5px",
-                      padding: "8px 12px",
-                      border: "none",
-                      borderRadius: "5px",
-                      cursor: "pointer"
+                      background:
+                        "green",
+                      color:
+                        "white",
+                      marginRight:
+                        "5px",
+                      padding:
+                        "8px 12px",
+                      border:
+                        "none",
+                      borderRadius:
+                        "5px",
+                      cursor:
+                        "pointer"
                     }}
-                    onClick={guardarCambios}
+                    onClick={
+                      guardarCambios
+                    }
                   >
                     Guardar
                   </button>
@@ -219,16 +288,25 @@ function ProductList({ setProductosGlobal }) {
 
                   <button
                     style={{
-                      background: "#3498db",
-                      color: "white",
-                      marginRight: "5px",
-                      padding: "8px 12px",
-                      border: "none",
-                      borderRadius: "5px",
-                      cursor: "pointer"
+                      background:
+                        "#3498db",
+                      color:
+                        "white",
+                      marginRight:
+                        "5px",
+                      padding:
+                        "8px 12px",
+                      border:
+                        "none",
+                      borderRadius:
+                        "5px",
+                      cursor:
+                        "pointer"
                     }}
                     onClick={() =>
-                      editarProducto(producto)
+                      editarProducto(
+                        producto
+                      )
                     }
                   >
                     Editar
@@ -238,15 +316,23 @@ function ProductList({ setProductosGlobal }) {
 
                 <button
                   style={{
-                    background: "red",
-                    color: "white",
-                    padding: "8px 12px",
-                    border: "none",
-                    borderRadius: "5px",
-                    cursor: "pointer"
+                    background:
+                      "red",
+                    color:
+                      "white",
+                    padding:
+                      "8px 12px",
+                    border:
+                      "none",
+                    borderRadius:
+                      "5px",
+                    cursor:
+                      "pointer"
                   }}
                   onClick={() =>
-                    eliminarProducto(producto._id)
+                    eliminarProducto(
+                      producto._id
+                    )
                   }
                 >
                   Eliminar
