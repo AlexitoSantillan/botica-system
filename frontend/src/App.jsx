@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 import ProductForm from "./components/ProductForm";
 import ProductList from "./components/ProductList";
@@ -8,6 +9,8 @@ import SalesList from "./components/SalesList";
 import Login from "./components/Login";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import StatsChart from "./components/StatsChart";
+
 import "./App.css";
 
 function App() {
@@ -17,6 +20,19 @@ function App() {
 
   const [autenticado, setAutenticado] =
     useState(false);
+
+  const obtenerProductos = async () => {
+
+    const res = await axios.get(
+      "http://localhost:5000/api/productos"
+    );
+
+    setProductos(res.data);
+  };
+
+  useEffect(() => {
+    obtenerProductos();
+  }, []);
 
   if (!autenticado) {
     return (
@@ -38,6 +54,10 @@ function App() {
       </h1>
 
       <Dashboard productos={productos} />
+
+      <div className="card">
+        <StatsChart productos={productos} />
+      </div>
 
       <div className="card">
         <ProductForm />
