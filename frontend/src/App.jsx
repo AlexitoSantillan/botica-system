@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-import ProductForm from "./components/ProductForm";
-import ProductList from "./components/ProductList";
-import Dashboard from "./components/Dashboard";
-import SaleForm from "./components/SaleForm";
-import SalesList from "./components/SalesList";
 import Login from "./components/Login";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import StatsChart from "./components/StatsChart";
-import ExportPDF from "./components/ExportPDF";
+
+import DashboardPage from "./pages/DashboardPage";
+import ProductosPage from "./pages/ProductosPage";
+import VentasPage from "./pages/VentasPage";
+import ReportesPage from "./pages/ReportesPage";
+import SoportePage from "./pages/SoportePage";
 
 import "./App.css";
 
@@ -19,34 +18,114 @@ function App() {
   const [productos, setProductos] =
     useState([]);
 
+  const [ventas, setVentas] =
+    useState([]);
+
   const [autenticado, setAutenticado] =
-    useState(false);
+    useState(
+      localStorage.getItem("token")
+        ? true
+        : false
+    );
 
   const [darkMode, setDarkMode] =
     useState(false);
 
+  const [vista, setVista] =
+    useState("inicio");
+
+  // ===== OBTENER PRODUCTOS =====
+
   const obtenerProductos = async () => {
 
-    const res = await axios.get(
-      "http://localhost:5000/api/productos"
-    );
+    try {
 
-    setProductos(res.data);
+      const token =
+        localStorage.getItem("token");
+
+      const res = await axios.get(
+        "http://localhost:5000/api/productos",
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`
+          }
+        }
+      );
+
+      setProductos(res.data);
+
+    } catch (error) {
+
+      console.log(
+        "Error al obtener productos",
+        error
+      );
+
+    }
+
   };
 
+  // ===== OBTENER VENTAS =====
+
+  const obtenerVentas = async () => {
+
+    try {
+
+      const token =
+        localStorage.getItem("token");
+
+      const res = await axios.get(
+        "http://localhost:5000/api/ventas",
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`
+          }
+        }
+      );
+
+      setVentas(res.data);
+
+    } catch (error) {
+
+      console.log(
+        "Error al obtener ventas",
+        error
+      );
+
+    }
+
+  };
+
+  // ===== USE EFFECT =====
+
   useEffect(() => {
+
     obtenerProductos();
+
+    obtenerVentas();
+
   }, []);
 
+  // ===== LOGIN =====
+
   if (!autenticado) {
+
     return (
       <Login
-        setAutenticado={setAutenticado}
+        setAutenticado={
+          setAutenticado
+        }
       />
     );
+
   }
 
+  // ===== RETURN =====
+
   return (
+
     <div
       className={
         darkMode
@@ -56,49 +135,76 @@ function App() {
     >
 
       <Navbar
-        setAutenticado={setAutenticado}
+        setAutenticado={
+          setAutenticado
+        }
         darkMode={darkMode}
-        setDarkMode={setDarkMode}
+        setDarkMode={
+          setDarkMode
+        }
+        setVista={setVista}
       />
 
       <h1 className="titulo">
         Sistema de Botica
       </h1>
 
-      <Dashboard productos={productos} />
+      {/* ===== INICIO ===== */}
 
-      <div className="card">
-        <ExportPDF productos={productos} />
-      </div>
+      {vista === "inicio" && (
 
-      <div className="card">
-        <StatsChart productos={productos} />
-      </div>
-
-      <div className="card">
-        <ProductForm 
-        obtenerProductos={obtenerProductos}/>
-      </div>
-
-      <div className="card">
-        <SaleForm />
-      </div>
-
-      <div className="card">
-        <SalesList />
-      </div>
-
-      <div className="card">
-        <ProductList
+        <DashboardPage
           productos={productos}
-          obtenerProductos={obtenerProductos}
+          ventas={ventas}
         />
-      </div>
+
+      )}
+
+      {/* ===== PRODUCTOS ===== */}
+
+      {vista === "productos" && (
+
+        <ProductosPage
+          productos={productos}
+          obtenerProductos={
+            obtenerProductos
+          }
+        />
+
+      )}
+
+      {/* ===== VENTAS ===== */}
+
+      {vista === "ventas" && (
+
+        <VentasPage />
+
+      )}
+
+      {/* ===== REPORTES ===== */}
+
+      {vista === "reportes" && (
+
+        <ReportesPage
+          productos={productos}
+        />
+
+      )}
+
+      {/* ===== SOPORTE ===== */}
+
+      {vista === "soporte" && (
+
+        <SoportePage />
+
+      )}
 
       <Footer />
 
     </div>
+
   );
+
 }
 
 export default App;

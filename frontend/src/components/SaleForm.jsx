@@ -12,11 +12,27 @@ function SaleForm() {
 
   const obtenerProductos = async () => {
 
-    const res = await axios.get(
-      "http://localhost:5000/api/productos"
-    );
+    try {
 
-    setProductos(res.data);
+      const token = localStorage.getItem("token");
+
+      const res = await axios.get(
+        "http://localhost:5000/api/productos",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      setProductos(res.data);
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+
   };
 
   useEffect(() => {
@@ -24,47 +40,64 @@ function SaleForm() {
   }, []);
 
   const handleChange = (e) => {
+
     setVenta({
       ...venta,
       [e.target.name]: e.target.value
     });
+
   };
 
-    const registrarVenta = async (e) => {
+  const registrarVenta = async (e) => {
+
     e.preventDefault();
 
     if (!venta.productoId || !venta.cantidad) {
-        alert("Completa todos los campos");
-        return;
+
+      alert("Completa todos los campos");
+      return;
+
     }
 
     try {
 
-        await axios.post(
+      const token = localStorage.getItem("token");
+
+      await axios.post(
         "http://localhost:5000/api/ventas",
         {
-            productoId: venta.productoId,
-            cantidad: Number(venta.cantidad)
+          productoId: venta.productoId,
+          cantidad: Number(venta.cantidad)
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         }
-        );
+      );
 
-        alert("Venta registrada");
+      alert("Venta registrada");
 
-        setVenta({
+      setVenta({
         productoId: "",
         cantidad: ""
-        });
+      });
 
-        obtenerProductos();
+      obtenerProductos();
 
     } catch (error) {
 
-        alert(error.response?.data?.mensaje || "Error");
+      alert(
+        error.response?.data?.mensaje ||
+        "Error al registrar venta"
+      );
 
     }
-    };
+
+  };
 
   return (
+
     <div>
 
       <h2>Registrar Venta</h2>
@@ -76,11 +109,13 @@ function SaleForm() {
           value={venta.productoId}
           onChange={handleChange}
         >
+
           <option value="">
             Seleccionar Producto
           </option>
 
           {productos.map((producto) => (
+
             <option
               key={producto._id}
               value={producto._id}
@@ -88,7 +123,9 @@ function SaleForm() {
               {producto.nombre} - Stock:
               {producto.stock}
             </option>
+
           ))}
+
         </select>
 
         <input
@@ -106,7 +143,9 @@ function SaleForm() {
       </form>
 
     </div>
+
   );
+
 }
 
 export default SaleForm;

@@ -1,3 +1,6 @@
+const verificarToken =
+  require("../middlewares/authMiddleware");
+
 const express = require("express");
 
 const router = express.Router();
@@ -9,11 +12,28 @@ const {
   actualizarProducto
 } = require("../controllers/productController");
 
-router.post("/", crearProducto);
+router.post(
+  "/",
+  verificarToken,
+  crearProducto
+);
 
-router.get("/", obtenerProductos);
+router.get(
+  "/",
+  verificarToken,
+  obtenerProductos
+);
 
-router.delete("/:id", eliminarProducto);
+router.delete(
+  "/:id",
+  verificarToken,
+  eliminarProducto
+);
 
-router.put("/:id", actualizarProducto);
-module.exports = router;  
+router.put(
+  "/:id",
+  verificarToken,
+  actualizarProducto
+);
+
+module.exports = router;

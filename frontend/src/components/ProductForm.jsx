@@ -1,45 +1,73 @@
 import { useState } from "react";
 import axios from "axios";
 
-function ProductForm({obtenerProductos}) {
-  const [producto, setProducto] = useState({
-    nombre: "",
-    categoria: "",
-    precio: "",
-    stock: "",
-    fechaVencimiento: ""
-  });
+function ProductForm({ obtenerProductos }) {
 
-  const handleChange = (e) => {
-    setProducto({
-      ...producto,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    await axios.post(
-      "http://localhost:5000/api/productos",
-      producto
-    );
-
-    alert("Producto agregado");
-
-    obtenerProductos();
-
-    setProducto({
+  const [producto, setProducto] =
+    useState({
       nombre: "",
       categoria: "",
       precio: "",
       stock: "",
       fechaVencimiento: ""
     });
+
+  const handleChange = (e) => {
+
+    setProducto({
+      ...producto,
+      [e.target.name]: e.target.value
+    });
+
+  };
+
+  const handleSubmit = async (e) => {
+
+    e.preventDefault();
+
+    try {
+
+      const token =
+        localStorage.getItem("token");
+
+      await axios.post(
+        "http://localhost:5000/api/productos",
+        producto,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`
+          }
+        }
+      );
+
+      alert("Producto agregado");
+
+      obtenerProductos();
+
+      setProducto({
+        nombre: "",
+        categoria: "",
+        precio: "",
+        stock: "",
+        fechaVencimiento: ""
+      });
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert(
+        "Error al agregar producto"
+      );
+
+    }
+
   };
 
   return (
     <form onSubmit={handleSubmit}>
+
       <input
         type="text"
         name="nombre"
@@ -75,13 +103,16 @@ function ProductForm({obtenerProductos}) {
       <input
         type="date"
         name="fechaVencimiento"
-        value={producto.fechaVencimiento}
+        value={
+          producto.fechaVencimiento
+        }
         onChange={handleChange}
       />
 
       <button type="submit">
         Guardar Producto
       </button>
+
     </form>
   );
 }

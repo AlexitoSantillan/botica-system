@@ -13,17 +13,22 @@ ChartJS.register(
   Legend
 );
 
-function StatsChart({ productos }) {
+function StatsChart({
+  productos = []
+}) {
 
-  const stockBajo = productos.filter(
-    (p) => p.stock < 5
-  ).length;
+  const stockBajo =
+    productos.filter(
+      (p) => p.stock < 5
+    ).length;
 
-  const stockNormal = productos.filter(
-    (p) => p.stock >= 5
-  ).length;
+  const stockNormal =
+    productos.filter(
+      (p) => p.stock >= 5
+    ).length;
 
   const data = {
+
     labels: [
       "Stock Bajo",
       "Stock Normal"
@@ -49,12 +54,14 @@ function StatsChart({ productos }) {
   };
 
   return (
+
     <div
       style={{
         width: "400px",
         margin: "auto"
       }}
     >
+
       <h2
         style={{
           textAlign: "center"
@@ -64,6 +71,7 @@ function StatsChart({ productos }) {
       </h2>
 
       <Pie data={data} />
+
     </div>
   );
 }

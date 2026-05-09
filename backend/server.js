@@ -10,9 +10,11 @@ app.use(express.json());
 
 const productRoutes = require("./routes/productRoutes");
 const saleRoutes = require("./routes/saleRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 app.use("/api/productos", productRoutes);
 app.use("/api/ventas", saleRoutes);
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
   res.send("API BOTICA FUNCIONANDO");

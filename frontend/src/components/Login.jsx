@@ -1,29 +1,58 @@
 import { useState } from "react";
+import axios from "axios";
 
 function Login({ setAutenticado }) {
 
-  const [usuario, setUsuario] =
-    useState("");
+  const [datos, setDatos] =
+    useState({
+      email: "",
+      password: ""
+    });
 
-  const [password, setPassword] =
-    useState("");
+  const handleChange = (e) => {
 
-  const iniciarSesion = (e) => {
+    setDatos({
+      ...datos,
+      [e.target.name]:
+        e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
 
     e.preventDefault();
 
-    if (
-      usuario === "admin" &&
-      password === "123456"
-    ) {
+    try {
+
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        datos
+      );
+
+      localStorage.setItem(
+        "token",
+        res.data.token
+      );
+
+      localStorage.setItem(
+        "usuario",
+        JSON.stringify(
+          res.data.usuario
+        )
+      );
+
+      alert("Login correcto");
 
       setAutenticado(true);
 
-    } else {
+    } catch (error) {
 
-      alert("Credenciales incorrectas");
+      alert(
+        error.response.data.mensaje
+      );
 
     }
+
   };
 
   return (
@@ -31,27 +60,25 @@ function Login({ setAutenticado }) {
 
       <form
         className="login-form"
-        onSubmit={iniciarSesion}
+        onSubmit={handleSubmit}
       >
 
         <h2>Iniciar Sesión</h2>
 
         <input
-          type="text"
-          placeholder="Usuario"
-          value={usuario}
-          onChange={(e) =>
-            setUsuario(e.target.value)
-          }
+          type="email"
+          name="email"
+          placeholder="Correo"
+          value={datos.email}
+          onChange={handleChange}
         />
 
         <input
           type="password"
+          name="password"
           placeholder="Contraseña"
-          value={password}
-          onChange={(e) =>
-            setPassword(e.target.value)
-          }
+          value={datos.password}
+          onChange={handleChange}
         />
 
         <button type="submit">
@@ -64,4 +91,4 @@ function Login({ setAutenticado }) {
   );
 }
 
-export default Login;
+export default Login; 
