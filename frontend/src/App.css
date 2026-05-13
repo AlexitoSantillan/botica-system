@@ -489,3 +489,166 @@ table tr:hover {
     font-size: 14px;
   }
 }
+
+/* ===== LOGIN WIZARD ===== */
+
+.login-container {
+
+  min-height: 100vh;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0f172a,
+      #1e293b
+    );
+
+  padding: 20px;
+}
+
+.login-card {
+
+  width: 100%;
+  max-width: 420px;
+
+  background: white;
+
+  padding: 40px;
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 15px 40px rgba(0,0,0,0.3);
+}
+
+.login-top {
+
+  text-align: center;
+
+  margin-bottom: 30px;
+}
+
+.login-top h1 {
+
+  color: #2563eb;
+
+  margin-bottom: 10px;
+}
+
+.login-top p {
+
+  color: #666;
+}
+
+.steps {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  margin-bottom: 30px;
+}
+
+.step {
+
+  width: 40px;
+  height: 40px;
+
+  border-radius: 50%;
+
+  background: #d1d5db;
+
+  color: white;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  font-weight: bold;
+}
+
+.step.active {
+
+  background: #2563eb;
+}
+
+.line {
+
+  width: 70px;
+  height: 4px;
+
+  background: #d1d5db;
+}
+
+.wizard-page {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 20px;
+}
+
+.wizard-page h2 {
+
+  text-align: center;
+
+  color: #111827;
+}
+
+.wizard-page input {
+
+  padding: 14px;
+
+  border-radius: 10px;
+
+  border: 1px solid #ccc;
+
+  font-size: 15px;
+}
+
+.wizard-page button {
+
+  padding: 14px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: #2563eb;
+
+  color: white;
+
+  font-size: 15px;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.wizard-page button:hover {
+
+  background: #1d4ed8;
+}
+
+.buttons {
+
+  display: flex;
+
+  gap: 10px;
+}
+
+.secondary {
+
+  background: #6b7280 !important;
+}

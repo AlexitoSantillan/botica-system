@@ -1,130 +1,191 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-function SaleForm() {
+function SaleForm({
+  obtenerProductos
+}) {
 
-  const [productos, setProductos] = useState([]);
+  const [productos, setProductos] =
+    useState([]);
 
-  const [venta, setVenta] = useState({
-    productoId: "",
-    cantidad: ""
-  });
+  const [venta, setVenta] =
+    useState({
+      productoId: "",
+      cantidad: ""
+    });
 
-  const obtenerProductos = async () => {
+  const cargarProductos =
+    async () => {
 
-    try {
+      try {
 
-      const token = localStorage.getItem("token");
+        const token =
+          localStorage.getItem(
+            "token"
+          );
 
-      const res = await axios.get(
-        "http://localhost:5000/api/productos",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+        const res =
+          await axios.get(
+            "http://localhost:5000/api/productos",
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`
+              }
+            }
+          );
 
-      setProductos(res.data);
+        setProductos(
+          res.data
+        );
 
-    } catch (error) {
+      } catch (error) {
 
-      console.log(error);
+        console.log(error);
 
-    }
+      }
 
-  };
+    };
 
   useEffect(() => {
-    obtenerProductos();
+
+    cargarProductos();
+
   }, []);
 
   const handleChange = (e) => {
 
     setVenta({
       ...venta,
-      [e.target.name]: e.target.value
+      [e.target.name]:
+        e.target.value
     });
 
   };
 
-  const registrarVenta = async (e) => {
+  const registrarVenta =
+    async (e) => {
 
-    e.preventDefault();
+      e.preventDefault();
 
-    if (!venta.productoId || !venta.cantidad) {
+      if (
+        !venta.productoId ||
+        !venta.cantidad
+      ) {
 
-      alert("Completa todos los campos");
-      return;
+        alert(
+          "Completa todos los campos"
+        );
 
-    }
+        return;
 
-    try {
+      }
 
-      const token = localStorage.getItem("token");
+      try {
 
-      await axios.post(
-        "http://localhost:5000/api/ventas",
-        {
-          productoId: venta.productoId,
-          cantidad: Number(venta.cantidad)
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
+        const token =
+          localStorage.getItem(
+            "token"
+          );
+
+        await axios.post(
+          "http://localhost:5000/api/ventas",
+          {
+            productoId:
+              venta.productoId,
+
+            cantidad:
+              Number(
+                venta.cantidad
+              )
+          },
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            }
           }
-        }
-      );
+        );
 
-      alert("Venta registrada");
+        alert(
+          "Venta registrada"
+        );
 
-      setVenta({
-        productoId: "",
-        cantidad: ""
-      });
+        setVenta({
+          productoId: "",
+          cantidad: ""
+        });
 
-      obtenerProductos();
+        await obtenerProductos();
 
-    } catch (error) {
+        await cargarProductos();
 
-      alert(
-        error.response?.data?.mensaje ||
-        "Error al registrar venta"
-      );
+      } catch (error) {
 
-    }
+        alert(
+          error.response?.data
+            ?.mensaje ||
+          "Error al registrar venta"
+        );
 
-  };
+      }
+
+    };
 
   return (
 
     <div>
 
-      <h2>Registrar Venta</h2>
+      <h2>
+        Registrar Venta
+      </h2>
 
-      <form onSubmit={registrarVenta}>
+      <form
+        onSubmit={
+          registrarVenta
+        }
+      >
 
         <select
           name="productoId"
-          value={venta.productoId}
-          onChange={handleChange}
+          value={
+            venta.productoId
+          }
+          onChange={
+            handleChange
+          }
         >
 
           <option value="">
             Seleccionar Producto
           </option>
 
-          {productos.map((producto) => (
+          {productos
+            .filter(
+              (producto) =>
+                producto.stock > 0
+            )
+            .map(
+              (producto) => (
 
-            <option
-              key={producto._id}
-              value={producto._id}
-            >
-              {producto.nombre} - Stock:
-              {producto.stock}
-            </option>
+                <option
+                  key={
+                    producto._id
+                  }
+                  value={
+                    producto._id
+                  }
+                >
 
-          ))}
+                  {producto.nombre}
+                  {" "}-
+                  {" "}Stock:
+                  {producto.stock}
+
+                </option>
+
+              )
+            )}
 
         </select>
 
@@ -132,8 +193,12 @@ function SaleForm() {
           type="number"
           name="cantidad"
           placeholder="Cantidad"
-          value={venta.cantidad}
-          onChange={handleChange}
+          value={
+            venta.cantidad
+          }
+          onChange={
+            handleChange
+          }
         />
 
         <button type="submit">

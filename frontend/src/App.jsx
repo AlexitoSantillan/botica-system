@@ -177,7 +177,11 @@ function App() {
 
       {vista === "ventas" && (
 
-        <VentasPage />
+        <VentasPage
+          obtenerProductos={
+            obtenerProductos
+          }
+        />
 
       )}
 

@@ -1,19 +1,34 @@
 import SaleForm from "../components/SaleForm";
 import SalesList from "../components/SalesList";
 
-function VentasPage() {
+function VentasPage({
+  obtenerProductos
+}) {
 
   return (
+
     <>
+
       <div className="card">
-        <SaleForm />
+
+        <SaleForm
+          obtenerProductos={
+            obtenerProductos
+          }
+        />
+
       </div>
 
       <div className="card">
+
         <SalesList />
+
       </div>
+
     </>
+
   );
+
 }
 
 export default VentasPage;
