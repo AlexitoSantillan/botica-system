@@ -3,145 +3,76 @@ import axios from "axios";
 
 function SalesList() {
 
-  const [ventas, setVentas] =
-    useState([]);
+  const [ventas, setVentas] = useState([]);
+  const [error, setError] = useState(null);
 
-  const obtenerVentas =
-    async () => {
+  const obtenerVentas = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-      try {
-
-        const token =
-          localStorage.getItem(
-            "token"
-          );
-
-        const res =
-          await axios.get(
-            "http://localhost:5000/api/ventas",
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`
-              }
-            }
-          );
-
-        setVentas(
-          res.data
-        );
-
-      } catch (error) {
-
-        console.log(error);
-
-      }
-
-    };
-
-  useEffect(() => {
-
-    obtenerVentas();
-
-    const intervalo =
-      setInterval(() => {
-
-        obtenerVentas();
-
-      }, 1000);
-
-    return () =>
-      clearInterval(
-        intervalo
+      const res = await axios.get(
+        "http://localhost:5000/api/ventas",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
       );
 
+      setVentas(res.data);
+
+    } catch (err) {
+      console.log(err);
+      setError("Error cargando ventas");
+    }
+  };
+
+  useEffect(() => {
+    obtenerVentas();
   }, []);
 
   return (
+    <div className="card">
 
-    <div>
+      <h2>📊 Historial de Ventas</h2>
 
-      <h2>
-        Historial de Ventas
-      </h2>
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <table border="1">
+      <table className="table">
 
         <thead>
-
           <tr>
-
-            <th>
-              Producto
-            </th>
-
-            <th>
-              Cantidad
-            </th>
-
-            <th>
-              Total
-            </th>
-
-            <th>
-              Fecha
-            </th>
-
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Total</th>
+            <th>Fecha</th>
           </tr>
-
         </thead>
 
         <tbody>
 
-          {ventas.map(
-            (venta) => (
+          {ventas.map((venta) => (
+            <tr key={venta._id}>
 
-              <tr
-                key={venta._id}
-              >
+              <td>{venta.producto}</td>
 
-                <td>
+              <td>{venta.cantidad}</td>
 
-                  {venta.producto ||
-                    venta.productoId
-                      ?.nombre ||
-                    "Sin nombre"}
+              <td>S/. {venta.total}</td>
 
-                </td>
+              <td>
+                {new Date(venta.fecha).toLocaleString()}
+              </td>
 
-                <td>
-                  {
-                    venta.cantidad
-                  }
-                </td>
-
-                <td>
-                  S/. {
-                    venta.total
-                  }
-                </td>
-
-                <td>
-
-                  {new Date(
-                    venta.fecha
-                  ).toLocaleString()}
-
-                </td>
-
-              </tr>
-
-            )
-          )}
+            </tr>
+          ))}
 
         </tbody>
 
       </table>
 
     </div>
-
   );
-
 }
 
 export default SalesList;

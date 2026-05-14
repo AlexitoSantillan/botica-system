@@ -19,26 +19,22 @@ ChartJS.register(
   Legend
 );
 
-function SalesBarChart({ ventas = [] }) {
+function SalesBarChart({ data = [] }) {
 
-  const labels = ventas.map(
-    (venta) =>
-      venta.producto?.nombre || "Producto"
+  const labels = data.map(v =>
+    typeof v.producto === "object"
+      ? v.producto?.nombre
+      : v.producto || "Producto"
   );
 
-  const cantidades = ventas.map(
-    (venta) => venta.cantidad
-  );
+  const cantidades = data.map(v => v.cantidad);
 
-  const data = {
+  const chartData = {
     labels,
-
     datasets: [
       {
         label: "Ventas",
-
         data: cantidades,
-
         backgroundColor: [
           "#3498db",
           "#2ecc71",
@@ -46,44 +42,27 @@ function SalesBarChart({ ventas = [] }) {
           "#9b59b6",
           "#e74c3c"
         ],
-
         borderRadius: 8
       }
     ]
   };
 
   const options = {
-
     responsive: true,
-
     plugins: {
-
-      legend: {
-        position: "top"
-      },
-
+      legend: { position: "top" },
       title: {
         display: true,
         text: "Historial de Ventas"
       }
-
     }
-
   };
 
   return (
-
-    <div className="card">
-
-      <Bar
-        data={data}
-        options={options}
-      />
-
+    <div className="card" style={{ height: 320 }}>
+      <Bar data={chartData} options={options} />
     </div>
-
   );
-
 }
 
 export default SalesBarChart;

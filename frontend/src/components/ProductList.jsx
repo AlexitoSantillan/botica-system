@@ -1,48 +1,91 @@
 import { useState } from "react";
 import axios from "axios";
 
-function ProductList({
-  productos,
-  obtenerProductos
-}) {
+function ProductList({ productos = [], obtenerProductos }) {
 
-  const [editando, setEditando] =
-    useState(null);
+  const [editando, setEditando] = useState(null);
+  const [busqueda, setBusqueda] = useState("");
 
-  const [busqueda, setBusqueda] =
-    useState("");
+  const [formulario, setFormulario] = useState({
+    nombre: "",
+    categoria: "",
+    precio: "",
+    stock: "",
+    fechaVencimiento: ""
+  });
 
-  const [formulario, setFormulario] =
-    useState({
-      nombre: "",
-      categoria: "",
-      precio: "",
-      stock: "",
-      fechaVencimiento: ""
+  // FILTRO
+  const productosFiltrados = productos.filter((p) =>
+    p.nombre?.toLowerCase().includes(busqueda.toLowerCase())
+  );
+
+  // EDITAR
+  const editarProducto = (producto) => {
+    setEditando(producto._id);
+
+    setFormulario({
+      nombre: producto.nombre ?? "",
+      categoria: producto.categoria ?? "",
+      precio: producto.precio ?? "",
+      stock: producto.stock ?? "",
+      fechaVencimiento: producto.fechaVencimiento
+        ? new Date(producto.fechaVencimiento).toISOString().split("T")[0]
+        : ""
     });
+  };
 
-  const productosFiltrados =
-    productos.filter((producto) =>
-      producto.nombre
-        ?.toLowerCase()
-        .includes(
-          busqueda.toLowerCase()
-        )
-    );
+  // CHANGE
+  const handleChange = (e) => {
+    setFormulario((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
 
-  const eliminarProducto = async (id) => {
+  // CANCELAR
+  const cancelarEdicion = () => {
+    setEditando(null);
+  };
 
+  // GUARDAR
+  const guardarCambios = async () => {
     try {
+      const token = localStorage.getItem("token");
 
-      const token =
-        localStorage.getItem("token");
+      await axios.put(
+        `http://localhost:5000/api/productos/${editando}`,
+        {
+          ...formulario,
+          precio: Number(formulario.precio),
+          stock: Number(formulario.stock),
+          fechaVencimiento: formulario.fechaVencimiento || null
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      setEditando(null);
+      obtenerProductos();
+
+    } catch (error) {
+      console.log(error);
+      alert("Error al actualizar producto");
+    }
+  };
+
+  // ELIMINAR
+  const eliminarProducto = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
 
       await axios.delete(
         `http://localhost:5000/api/productos/${id}`,
         {
           headers: {
-            Authorization:
-              `Bearer ${token}`
+            Authorization: `Bearer ${token}`
           }
         }
       );
@@ -50,388 +93,161 @@ function ProductList({
       obtenerProductos();
 
     } catch (error) {
-
       console.log(error);
-
-      alert(
-        "Error al eliminar producto"
-      );
-
     }
-
   };
-
-  const editarProducto = (producto) => {
-
-    setEditando(producto._id);
-
-    setFormulario({
-      nombre:
-        producto.nombre || "",
-
-      categoria:
-        producto.categoria || "",
-
-      precio:
-        producto.precio || "",
-
-      stock:
-        producto.stock || "",
-
-      fechaVencimiento:
-        producto.fechaVencimiento
-          ? new Date(
-              producto.fechaVencimiento
-            )
-              .toISOString()
-              .split("T")[0]
-          : ""
-    });
-
-  };
-
-  const handleChange = (e) => {
-
-    setFormulario({
-      ...formulario,
-      [e.target.name]:
-        e.target.value
-    });
-
-  };
-
-  const guardarCambios =
-    async () => {
-
-      try {
-
-        const token =
-          localStorage.getItem("token");
-
-        await axios.put(
-          `http://localhost:5000/api/productos/${editando}`,
-          formulario,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
-          }
-        );
-
-        setEditando(null);
-
-        obtenerProductos();
-
-        alert(
-          "Producto actualizado"
-        );
-
-      } catch (error) {
-
-        console.log(error);
-
-        alert(
-          "Error al actualizar"
-        );
-
-      }
-
-    };
 
   return (
+    <div className="card">
 
-    <div>
-
-      <h2>Inventario</h2>
+      <h2>📦 Inventario</h2>
 
       <input
-        type="text"
+        className="input-busqueda"
         placeholder="Buscar producto..."
         value={busqueda}
-        onChange={(e) =>
-          setBusqueda(
-            e.target.value
-          )
-        }
+        onChange={(e) => setBusqueda(e.target.value)}
       />
 
-      <table border="1">
+      <div style={{ overflowX: "auto" }}>
 
-        <thead>
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Categoría</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Vencimiento</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
 
-          <tr>
-            <th>Nombre</th>
-            <th>Categoría</th>
-            <th>Precio</th>
-            <th>Existencias</th>
-            <th>Vencimiento</th>
-            <th>Acciones</th>
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          {productosFiltrados.map(
-            (producto) => (
-
-              <tr key={producto._id}>
+          <tbody>
+            {productosFiltrados.map((producto) => (
+              <tr
+                key={`${producto._id}-${editando === producto._id ? "edit" : "view"}`}
+              >
 
                 <td>
-
-                  {editando ===
-                  producto._id ? (
-
+                  {editando === producto._id ? (
                     <input
-                      type="text"
                       name="nombre"
-                      value={
-                        formulario.nombre
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      value={formulario.nombre}
+                      onChange={handleChange}
                     />
-
                   ) : (
-
                     producto.nombre
-
                   )}
-
                 </td>
 
                 <td>
-
-                  {editando ===
-                  producto._id ? (
-
+                  {editando === producto._id ? (
                     <input
-                      type="text"
                       name="categoria"
-                      value={
-                        formulario.categoria
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      value={formulario.categoria}
+                      onChange={handleChange}
                     />
-
                   ) : (
-
                     producto.categoria
-
                   )}
-
                 </td>
 
                 <td>
-
-                  {editando ===
-                  producto._id ? (
-
+                  {editando === producto._id ? (
                     <input
                       type="number"
                       name="precio"
-                      value={
-                        formulario.precio
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      value={formulario.precio}
+                      onChange={handleChange}
                     />
-
                   ) : (
-
                     `S/. ${producto.precio}`
-
                   )}
-
                 </td>
 
                 <td>
-
-                  {editando ===
-                  producto._id ? (
-
+                  {editando === producto._id ? (
                     <input
                       type="number"
                       name="stock"
-                      value={
-                        formulario.stock
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      value={formulario.stock}
+                      onChange={handleChange}
                     />
-
                   ) : (
-
                     <>
-
                       {producto.stock}
 
-                      {producto.stock < 5 && (
-                        <span
-                          style={{
-                            color: "red",
-                            display: "block"
-                          }}
-                        >
+                      {producto.stock < 10 && (
+                        <span style={{ color: "red", display: "block" }}>
                           Stock Bajo
                         </span>
                       )}
-
                     </>
-
                   )}
-
                 </td>
 
                 <td>
-
-                  {editando ===
-                  producto._id ? (
-
+                  {editando === producto._id ? (
                     <input
                       type="date"
                       name="fechaVencimiento"
-                      value={
-                        formulario.fechaVencimiento
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      value={formulario.fechaVencimiento}
+                      onChange={handleChange}
                     />
-
                   ) : (
-
-                    <>
-
-                      {producto.fechaVencimiento &&
-                        new Date(producto.fechaVencimiento) <
-                          new Date(
-                            Date.now() +
-                            7 * 24 * 60 * 60 * 1000
-                          ) && (
-                          <span
-                            style={{
-                              color: "orange",
-                              display: "block"
-                            }}
-                          >
-                            Próximo a vencer
-                          </span>
-                      )}
-
-                    </>
-
+                    producto.fechaVencimiento
+                      ? new Date(producto.fechaVencimiento).toLocaleDateString()
+                      : "Sin fecha"
                   )}
-
                 </td>
 
                 <td>
+                  {editando === producto._id ? (
+                    <>
+                      <button
+                        type="button"
+                        style={{ background: "green", color: "white" }}
+                        onClick={guardarCambios}
+                      >
+                        Guardar
+                      </button>
 
-                  {editando ===
-                  producto._id ? (
-
-                    <button
-                      type="button"
-                      style={{
-                        background:
-                          "green",
-                        color:
-                          "white",
-                        marginRight:
-                          "5px",
-                        padding:
-                          "8px 12px",
-                        border:
-                          "none",
-                        borderRadius:
-                          "5px",
-                        cursor:
-                          "pointer"
-                      }}
-                      onClick={
-                        guardarCambios
-                      }
-                    >
-                      Guardar
-                    </button>
-
+                      <button
+                        type="button"
+                        style={{ background: "gray", color: "white", marginLeft: 5 }}
+                        onClick={cancelarEdicion}
+                      >
+                        Cancelar
+                      </button>
+                    </>
                   ) : (
-
                     <button
                       type="button"
-                      style={{
-                        background:
-                          "#3498db",
-                        color:
-                          "white",
-                        marginRight:
-                          "5px",
-                        padding:
-                          "8px 12px",
-                        border:
-                          "none",
-                        borderRadius:
-                          "5px",
-                        cursor:
-                          "pointer"
-                      }}
-                      onClick={() =>
-                        editarProducto(
-                          producto
-                        )
-                      }
+                      style={{ background: "#3498db", color: "white" }}
+                      onClick={() => editarProducto(producto)}
                     >
                       Editar
                     </button>
-
                   )}
 
                   <button
                     type="button"
-                    style={{
-                      background:
-                        "red",
-                      color:
-                        "white",
-                      padding:
-                        "8px 12px",
-                      border:
-                        "none",
-                      borderRadius:
-                        "5px",
-                      cursor:
-                        "pointer"
-                    }}
-                    onClick={() =>
-                      eliminarProducto(
-                        producto._id
-                      )
-                    }
+                    style={{ background: "red", color: "white", marginLeft: 5 }}
+                    onClick={() => eliminarProducto(producto._id)}
                   >
                     Eliminar
                   </button>
-
                 </td>
 
               </tr>
+            ))}
+          </tbody>
 
-            )
-          )}
-
-        </tbody>
-
-      </table>
-
+        </table>
+      </div>
     </div>
-
   );
-
 }
 
 export default ProductList;

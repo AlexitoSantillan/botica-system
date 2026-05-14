@@ -11,44 +11,35 @@ import VentasPage from "./pages/VentasPage";
 import ReportesPage from "./pages/ReportesPage";
 import SoportePage from "./pages/SoportePage";
 
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import "./App.css";
 
 function App() {
 
-  const [productos, setProductos] =
-    useState([]);
+  const [productos, setProductos] = useState([]);
+  const [ventas, setVentas] = useState([]);
 
-  const [ventas, setVentas] =
-    useState([]);
+  const [autenticado, setAutenticado] = useState(
+    localStorage.getItem("token") ? true : false
+  );
 
-  const [autenticado, setAutenticado] =
-    useState(
-      localStorage.getItem("token")
-        ? true
-        : false
-    );
+  const [darkMode, setDarkMode] = useState(false);
+  const [vista, setVista] = useState("inicio");
 
-  const [darkMode, setDarkMode] =
-    useState(false);
-
-  const [vista, setVista] =
-    useState("inicio");
-
-  // ===== OBTENER PRODUCTOS =====
-
+  // =========================
+  // PRODUCTOS
+  // =========================
   const obtenerProductos = async () => {
-
     try {
-
-      const token =
-        localStorage.getItem("token");
+      const token = localStorage.getItem("token");
 
       const res = await axios.get(
         "http://localhost:5000/api/productos",
         {
           headers: {
-            Authorization:
-              `Bearer ${token}`
+            Authorization: `Bearer ${token}`
           }
         }
       );
@@ -56,31 +47,22 @@ function App() {
       setProductos(res.data);
 
     } catch (error) {
-
-      console.log(
-        "Error al obtener productos",
-        error
-      );
-
+      console.log("Error al obtener productos", error);
     }
-
   };
 
-  // ===== OBTENER VENTAS =====
-
+  // =========================
+  // VENTAS
+  // =========================
   const obtenerVentas = async () => {
-
     try {
-
-      const token =
-        localStorage.getItem("token");
+      const token = localStorage.getItem("token");
 
       const res = await axios.get(
         "http://localhost:5000/api/ventas",
         {
           headers: {
-            Authorization:
-              `Bearer ${token}`
+            Authorization: `Bearer ${token}`
           }
         }
       );
@@ -88,127 +70,79 @@ function App() {
       setVentas(res.data);
 
     } catch (error) {
-
-      console.log(
-        "Error al obtener ventas",
-        error
-      );
-
+      console.log("Error al obtener ventas", error);
     }
-
   };
 
-  // ===== USE EFFECT =====
-
+  // =========================
+  // CARGA INICIAL
+  // =========================
   useEffect(() => {
-
     obtenerProductos();
-
     obtenerVentas();
-
   }, []);
 
-  // ===== LOGIN =====
-
+  // =========================
+  // LOGIN
+  // =========================
   if (!autenticado) {
-
-    return (
-      <Login
-        setAutenticado={
-          setAutenticado
-        }
-      />
-    );
-
+    return <Login setAutenticado={setAutenticado} />;
   }
 
-  // ===== RETURN =====
-
+  // =========================
+  // UI
+  // =========================
   return (
-
-    <div
-      className={
-        darkMode
-          ? "container dark"
-          : "container"
-      }
-    >
+    <div className={darkMode ? "container dark" : "container"}>
 
       <Navbar
-        setAutenticado={
-          setAutenticado
-        }
+        setAutenticado={setAutenticado}
         darkMode={darkMode}
-        setDarkMode={
-          setDarkMode
-        }
+        setDarkMode={setDarkMode}
         setVista={setVista}
       />
 
-      <h1 className="titulo">
-        Sistema de Botica
-      </h1>
+      <h1 className="titulo">Sistema de Botica</h1>
 
-      {/* ===== INICIO ===== */}
-
+      {/* ================= INICIO ================= */}
       {vista === "inicio" && (
-
         <DashboardPage
           productos={productos}
           ventas={ventas}
         />
-
       )}
 
-      {/* ===== PRODUCTOS ===== */}
-
+      {/* ================= PRODUCTOS ================= */}
       {vista === "productos" && (
-
         <ProductosPage
           productos={productos}
-          obtenerProductos={
-            obtenerProductos
-          }
+          obtenerProductos={obtenerProductos}
         />
-
       )}
 
-      {/* ===== VENTAS ===== */}
-
+      {/* ================= VENTAS ================= */}
       {vista === "ventas" && (
-
         <VentasPage
-          obtenerProductos={
-            obtenerProductos
-          }
-        />
-
-      )}
-
-      {/* ===== REPORTES ===== */}
-
-      {vista === "reportes" && (
-
-        <ReportesPage
           productos={productos}
+          ventas={ventas}
+          obtenerProductos={obtenerProductos}
+          obtenerVentas={obtenerVentas}
         />
-
       )}
 
-      {/* ===== SOPORTE ===== */}
-
-      {vista === "soporte" && (
-
-        <SoportePage />
-
+      {/* ================= REPORTES ================= */}
+      {vista === "reportes" && (
+        <ReportesPage productos={productos} />
       )}
+
+      {/* ================= SOPORTE ================= */}
+      {vista === "soporte" && <SoportePage />}
 
       <Footer />
 
+      <ToastContainer />
     </div>
-
   );
-
 }
 
 export default App;

@@ -19,7 +19,8 @@ const productSchema = new mongoose.Schema({
   },
   fechaVencimiento: {
     type: Date,
-    required: true
+    required: false,
+    default: null
   }
 });
 

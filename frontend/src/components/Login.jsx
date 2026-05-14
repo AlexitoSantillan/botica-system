@@ -1,5 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
+import {
+  toast
+} from "react-toastify";
 
 function Login({ setAutenticado }) {
 
@@ -74,19 +77,18 @@ function Login({ setAutenticado }) {
           )
         );
 
-        alert(
-          "Bienvenido"
+        toast.success(
+          "Bienvenido al sistema"
         );
 
         setAutenticado(true);
 
       } catch (error) {
 
-        alert(
-          error.response?.data
-            ?.mensaje ||
-          "Error al iniciar sesión"
-        );
+      toast.error(
+        error.response?.data?.mensaje ||
+        "Error al iniciar sesión"
+      );
 
       } finally {
 

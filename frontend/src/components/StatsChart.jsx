@@ -1,76 +1,34 @@
 import {
-  Chart as ChartJS,
-  ArcElement,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
   Tooltip,
-  Legend
-} from "chart.js";
+  ResponsiveContainer
+} from "recharts";
 
-import { Pie } from "react-chartjs-2";
-
-ChartJS.register(
-  ArcElement,
-  Tooltip,
-  Legend
-);
-
-function StatsChart({
-  productos = []
-}) {
-
-  const stockBajo =
-    productos.filter(
-      (p) => p.stock < 5
-    ).length;
-
-  const stockNormal =
-    productos.filter(
-      (p) => p.stock >= 5
-    ).length;
-
-  const data = {
-
-    labels: [
-      "Stock Bajo",
-      "Stock Normal"
-    ],
-
-    datasets: [
-      {
-        label: "Productos",
-
-        data: [
-          stockBajo,
-          stockNormal
-        ],
-
-        backgroundColor: [
-          "red",
-          "#3498db"
-        ],
-
-        borderWidth: 1
-      }
-    ]
-  };
-
+function StatsChart({ data = [], title = "Gráfico" }) {
   return (
+    <div className="card">
 
-    <div
-      style={{
-        width: "400px",
-        margin: "auto"
-      }}
-    >
+      <h3 style={{ marginBottom: 10 }}>{title}</h3>
 
-      <h2
-        style={{
-          textAlign: "center"
-        }}
-      >
-        Estadísticas
-      </h2>
-
-      <Pie data={data} />
+      <div style={{ width: "100%", height: 300 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={data}>
+            <XAxis dataKey="fecha" />
+            <YAxis />
+            <Tooltip />
+            <Line
+              type="monotone"
+              dataKey="total"
+              stroke="#4caf50"
+              strokeWidth={2}
+              dot={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
 
     </div>
   );

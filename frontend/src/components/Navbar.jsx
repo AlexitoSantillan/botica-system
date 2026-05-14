@@ -5,11 +5,22 @@ function Navbar({
   setVista
 }) {
 
+  const usuario =
+    JSON.parse(
+      localStorage.getItem(
+        "usuario"
+      )
+    );
+
   const cerrarSesion = () => {
 
-    localStorage.removeItem("token");
+    localStorage.removeItem(
+      "token"
+    );
 
-    localStorage.removeItem("usuario");
+    localStorage.removeItem(
+      "usuario"
+    );
 
     setAutenticado(false);
 
@@ -85,14 +96,26 @@ function Navbar({
             setDarkMode(!darkMode)
           }
         >
+
           {darkMode
             ? "☀️ Claro"
             : "🌙 Oscuro"}
+
         </button>
 
-        <span className="admin-text">
-          👤 Administrador
-        </span>
+          <span className="admin-text">
+
+            👤 {usuario?.nombre}
+
+            {" - "}
+
+            {
+              usuario?.rol === "admin"
+                ? "Administrador"
+                : "Vendedor"
+            }
+
+          </span>
 
         <button
           className="logout-btn"

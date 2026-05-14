@@ -1,0 +1,53 @@
+.dashboard {
+  padding: 20px;
+}
+
+.header h1 {
+  margin-bottom: 5px;
+}
+
+.header p {
+  color: #6b7280;
+  margin-bottom: 20px;
+}
+
+/* KPI */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.kpi h3 {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.kpi p {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.kpi.blue { border-left: 4px solid #3b82f6; }
+.kpi.red { border-left: 4px solid #ef4444; }
+.kpi.orange { border-left: 4px solid #f59e0b; }
+.kpi.green { border-left: 4px solid #22c55e; }
+
+/* CHART GRID */
+.chart {
+  margin-top: 20px;
+}
+
+/* LOADING */
+.loading {
+  padding: 30px;
+  font-size: 18px;
+}

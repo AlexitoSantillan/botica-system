@@ -1,216 +1,126 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 
-function SaleForm({
-  obtenerProductos
-}) {
+function ProductForm({ obtenerProductos }) {
 
-  const [productos, setProductos] =
-    useState([]);
-
-  const [venta, setVenta] =
-    useState({
-      productoId: "",
-      cantidad: ""
-    });
-
-  const cargarProductos =
-    async () => {
-
-      try {
-
-        const token =
-          localStorage.getItem(
-            "token"
-          );
-
-        const res =
-          await axios.get(
-            "http://localhost:5000/api/productos",
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`
-              }
-            }
-          );
-
-        setProductos(
-          res.data
-        );
-
-      } catch (error) {
-
-        console.log(error);
-
-      }
-
-    };
-
-  useEffect(() => {
-
-    cargarProductos();
-
-  }, []);
+  const [producto, setProducto] = useState({
+    nombre: "",
+    categoria: "",
+    precio: "",
+    stock: "",
+    fechaVencimiento: ""
+  });
 
   const handleChange = (e) => {
-
-    setVenta({
-      ...venta,
-      [e.target.name]:
-        e.target.value
+    setProducto({
+      ...producto,
+      [e.target.name]: e.target.value
     });
-
   };
 
-  const registrarVenta =
-    async (e) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-      e.preventDefault();
+    try {
+      const token = localStorage.getItem("token");
 
-      if (
-        !venta.productoId ||
-        !venta.cantidad
-      ) {
+      // 🔥 FIX IMPORTANTE: limpiar y convertir datos
+      const dataToSend = {
+        ...producto,
+        precio: Number(producto.precio),
+        stock: Number(producto.stock),
+        fechaVencimiento: producto.fechaVencimiento
+          ? new Date(producto.fechaVencimiento)
+          : null
+      };
 
-        alert(
-          "Completa todos los campos"
-        );
-
-        return;
-
-      }
-
-      try {
-
-        const token =
-          localStorage.getItem(
-            "token"
-          );
-
-        await axios.post(
-          "http://localhost:5000/api/ventas",
-          {
-            productoId:
-              venta.productoId,
-
-            cantidad:
-              Number(
-                venta.cantidad
-              )
-          },
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
+      const res = await axios.post(
+        "http://localhost:5000/api/productos",
+        dataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
           }
-        );
+        }
+      );
 
-        alert(
-          "Venta registrada"
-        );
+      // ✔ solo si realmente se guardó
+      toast.success("Producto agregado correctamente");
 
-        setVenta({
-          productoId: "",
-          cantidad: ""
-        });
+      obtenerProductos();
 
-        await obtenerProductos();
+      setProducto({
+        nombre: "",
+        categoria: "",
+        precio: "",
+        stock: "",
+        fechaVencimiento: ""
+      });
 
-        await cargarProductos();
+    } catch (error) {
+      console.log(error);
 
-      } catch (error) {
-
-        alert(
-          error.response?.data
-            ?.mensaje ||
-          "Error al registrar venta"
-        );
-
-      }
-
-    };
+      toast.error(
+        error.response?.data?.mensaje ||
+        "Error al agregar producto"
+      );
+    }
+  };
 
   return (
+    <form onSubmit={handleSubmit}>
 
-    <div>
+      <input
+        type="text"
+        name="nombre"
+        placeholder="Nombre"
+        value={producto.nombre}
+        onChange={handleChange}
+        required
+      />
 
-      <h2>
-        Registrar Venta
-      </h2>
+      <input
+        type="text"
+        name="categoria"
+        placeholder="Categoría"
+        value={producto.categoria}
+        onChange={handleChange}
+        required
+      />
 
-      <form
-        onSubmit={
-          registrarVenta
-        }
-      >
+      <input
+        type="number"
+        name="precio"
+        placeholder="Precio"
+        value={producto.precio}
+        onChange={handleChange}
+        required
+      />
 
-        <select
-          name="productoId"
-          value={
-            venta.productoId
-          }
-          onChange={
-            handleChange
-          }
-        >
+      <input
+        type="number"
+        name="stock"
+        placeholder="Stock"
+        value={producto.stock}
+        onChange={handleChange}
+        required
+      />
 
-          <option value="">
-            Seleccionar Producto
-          </option>
+      <input
+        type="date"
+        name="fechaVencimiento"
+        value={producto.fechaVencimiento}
+        onChange={handleChange}
+        required
+      />
 
-          {productos
-            .filter(
-              (producto) =>
-                producto.stock > 0
-            )
-            .map(
-              (producto) => (
+      <button type="submit">
+        Guardar Producto
+      </button>
 
-                <option
-                  key={
-                    producto._id
-                  }
-                  value={
-                    producto._id
-                  }
-                >
-
-                  {producto.nombre}
-                  {" "}-
-                  {" "}Stock:
-                  {producto.stock}
-
-                </option>
-
-              )
-            )}
-
-        </select>
-
-        <input
-          type="number"
-          name="cantidad"
-          placeholder="Cantidad"
-          value={
-            venta.cantidad
-          }
-          onChange={
-            handleChange
-          }
-        />
-
-        <button type="submit">
-          Vender
-        </button>
-
-      </form>
-
-    </div>
-
+    </form>
   );
-
 }
 
-export default SaleForm;
+export default ProductForm;
