@@ -1,126 +1,218 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import {
+  toast
+} from "react-toastify";
 
-function ProductForm({ obtenerProductos }) {
+function SaleForm({
+  obtenerProductos
+}) {
 
-  const [producto, setProducto] = useState({
-    nombre: "",
-    categoria: "",
-    precio: "",
-    stock: "",
-    fechaVencimiento: ""
-  });
+  const [productos, setProductos] =
+    useState([]);
+
+  const [venta, setVenta] =
+    useState({
+      productoId: "",
+      cantidad: ""
+    });
+
+  const cargarProductos =
+    async () => {
+
+      try {
+
+        const token =
+          localStorage.getItem(
+            "token"
+          );
+
+        const res =
+          await axios.get(
+            "http://localhost:5000/api/productos",
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`
+              }
+            }
+          );
+
+        setProductos(
+          res.data
+        );
+
+      } catch (error) {
+
+        console.log(error);
+
+      }
+
+    };
+
+  useEffect(() => {
+
+    cargarProductos();
+
+  }, []);
 
   const handleChange = (e) => {
-    setProducto({
-      ...producto,
-      [e.target.name]: e.target.value
+
+    setVenta({
+      ...venta,
+      [e.target.name]:
+        e.target.value
     });
+
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const registrarVenta =
+    async (e) => {
 
-    try {
-      const token = localStorage.getItem("token");
+      e.preventDefault();
 
-      // 🔥 FIX IMPORTANTE: limpiar y convertir datos
-      const dataToSend = {
-        ...producto,
-        precio: Number(producto.precio),
-        stock: Number(producto.stock),
-        fechaVencimiento: producto.fechaVencimiento
-          ? new Date(producto.fechaVencimiento)
-          : null
-      };
+      if (
+        !venta.productoId ||
+        !venta.cantidad
+      ) {
 
-      const res = await axios.post(
-        "http://localhost:5000/api/productos",
-        dataToSend,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
+        toast.warning(
+          "Completa todos los campos"
+        );
+
+        return;
+
+      }
+
+      try {
+
+        const token =
+          localStorage.getItem(
+            "token"
+          );
+
+        await axios.post(
+          "http://localhost:5000/api/ventas",
+          {
+            productoId:
+              venta.productoId,
+
+            cantidad:
+              Number(
+                venta.cantidad
+              )
+          },
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            }
           }
-        }
-      );
+        );
 
-      // ✔ solo si realmente se guardó
-      toast.success("Producto agregado correctamente");
+        toast.success(
+          "Venta registrada"
+        );
 
-      obtenerProductos();
+        setVenta({
+          productoId: "",
+          cantidad: ""
+        });
 
-      setProducto({
-        nombre: "",
-        categoria: "",
-        precio: "",
-        stock: "",
-        fechaVencimiento: ""
-      });
+        await obtenerProductos();
 
-    } catch (error) {
-      console.log(error);
+        await cargarProductos();
 
-      toast.error(
-        error.response?.data?.mensaje ||
-        "Error al agregar producto"
-      );
-    }
-  };
+      } catch (error) {
+
+        toast.error(
+          error.response?.data?.mensaje ||
+          "Error al registrar venta"
+        );
+
+      }
+
+    };
 
   return (
-    <form onSubmit={handleSubmit}>
 
-      <input
-        type="text"
-        name="nombre"
-        placeholder="Nombre"
-        value={producto.nombre}
-        onChange={handleChange}
-        required
-      />
+    <div>
 
-      <input
-        type="text"
-        name="categoria"
-        placeholder="Categoría"
-        value={producto.categoria}
-        onChange={handleChange}
-        required
-      />
+      <h2>
+        Registrar Venta
+      </h2>
 
-      <input
-        type="number"
-        name="precio"
-        placeholder="Precio"
-        value={producto.precio}
-        onChange={handleChange}
-        required
-      />
+      <form
+        onSubmit={
+          registrarVenta
+        }
+      >
 
-      <input
-        type="number"
-        name="stock"
-        placeholder="Stock"
-        value={producto.stock}
-        onChange={handleChange}
-        required
-      />
+        <select
+          name="productoId"
+          value={
+            venta.productoId
+          }
+          onChange={
+            handleChange
+          }
+        >
 
-      <input
-        type="date"
-        name="fechaVencimiento"
-        value={producto.fechaVencimiento}
-        onChange={handleChange}
-        required
-      />
+          <option value="">
+            Seleccionar Producto
+          </option>
 
-      <button type="submit">
-        Guardar Producto
-      </button>
+          {productos
+            .filter(
+              (producto) =>
+                producto.stock > 0
+            )
+            .map(
+              (producto) => (
 
-    </form>
+                <option
+                  key={
+                    producto._id
+                  }
+                  value={
+                    producto._id
+                  }
+                >
+
+                  {producto.nombre}
+                  {" "}-
+                  {" "}Stock:
+                  {producto.stock}
+
+                </option>
+
+              )
+            )}
+
+        </select>
+
+        <input
+          type="number"
+          name="cantidad"
+          placeholder="Cantidad"
+          value={
+            venta.cantidad
+          }
+          onChange={
+            handleChange
+          }
+        />
+
+        <button type="submit">
+          Vender
+        </button>
+
+      </form>
+
+    </div>
+
   );
+
 }
 
-export default ProductForm;
+export default SaleForm;
